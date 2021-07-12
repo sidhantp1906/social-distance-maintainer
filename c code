@@ -1,0 +1,76 @@
+#include <LiquidCrystal.h>
+#define echoPin 10 // attach pin D2 Arduino to pin Echo of HC-SR04
+#define trigPin 9 //attach pin D3 Arduino to pin Trig of HC-SR04
+const int buzzer = 8;
+// defines variables
+long duration; // variable for the duration of sound wave travel
+int distance; // variable for the distance measurement
+LiquidCrystal lcd(2,3,4,5,6,7);
+byte heart[8] = { 0b00000, 0b01010, 
+                  0b11111, 0b11111, 
+                  0b11111, 0b01110, 
+                  0b00100, 0b00000 
+                 }; 
+byte smile[8] = { 0b00000, 0b00100,
+                  0b10010, 0b00001,
+                  0b10001, 0b00010,
+                  0b00100, 0b00000 
+                 }; 
+void setup() {
+  pinMode(trigPin, OUTPUT); // Sets the trigPin as an OUTPUT
+  pinMode(echoPin, INPUT);
+  pinMode(buzzer, OUTPUT);// Sets the echoPin as an INPUT
+  Serial.begin(9600); // // Serial Communication is starting with 9600 of baudrate speed
+  lcd.begin(16,2);
+  Serial.println("Ultrasonic Sensor HC-SR04 Test"); // print some text in Serial Monitor
+  Serial.println("with Arduino UNO R3");
+   lcd.createChar(1, heart);
+    lcd.createChar(2, smile);
+}
+void loop() {
+  // Clears the trigPin condition
+  digitalWrite(trigPin, LOW);
+  delayMicroseconds(2);
+  // Sets the trigPin HIGH (ACTIVE) for 10 microseconds
+  digitalWrite(trigPin, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(trigPin, LOW);
+  // Reads the echoPin, returns the sound wave travel time in microseconds
+  duration = pulseIn(echoPin, HIGH);
+  // Calculating the distance
+  distance = duration * 0.034 / 2; // Speed of sound wave divided by 2 (go and back)
+  // Displays the distance on the Serial Monitor
+  Serial.print("Distance: ");
+  Serial.print(distance);
+  Serial.println(" cm");
+  lcd.setCursor(0,0);
+  lcd.print("distance: ");
+  lcd.print(distance);
+  lcd.print(" cm");
+  delay(1000);
+  lcd.clear();
+  
+  if(distance<=2000) //2m
+  {
+    Serial.print("its okay");
+    noTone(buzzer);     // Stop sound...
+  delay(1000); 
+    lcd.setCursor(0,1);
+    lcd.print("good");
+    lcd.setCursor(6,1);
+    lcd.write(1);
+    delay(1000);
+    lcd.clear();
+}
+  else
+  {
+    tone(buzzer, 1000); // Send 1KHz sound signal...
+  delay(1000); 
+    lcd.setCursor(0,1);
+    lcd.print("make distance");
+    lcd.setCursor(14,1);
+    lcd.write(2);
+    delay(1000);
+    lcd.clear();
+  }
+}
